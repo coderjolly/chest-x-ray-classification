@@ -57,7 +57,7 @@ In this study, 12 models, four for each of the three datasets will be trained. T
 
 <ol type="A">
 <li><b>Pre-processing Techniques</b></li>
- Before training, the images were analysed to come up with pre-processing techniques such as **Histogram Equalization** and **Gaussian Blur** with a 5x5 kernel as [Giełczyk et al.](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0265949) showed that this improved the F1 score by 4% for chest X-ray classification. Visually, the contrast of the scan improved and allowed irregularities to stand out as shown in the figure below.
+ Before training, the images were analysed to come up with pre-processing techniques such as <b>Histogram Equalization</b> and <b>Gaussian Blur</b> with a 5x5 kernel as <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0265949">Giełczyk et al.</a> showed that this improved the F1 score by 4% for chest X-ray classification. Visually, the contrast of the scan improved and allowed irregularities to stand out as shown in the figure below.
 
 ![histogram](/figures/histogram-equilization.png)
 
@@ -71,9 +71,9 @@ Different backbone architectures were chosen to ensure that different types of C
 
 | Architecture      | Params (Mil.) | Layers  | FLOPS (Bil.) | Imagenet Acc. |
 |-------------------|---------------|---------|--------------|---------------|
-| MobileNet V3 Large| `5.5`         | `18`    | `8.7`        | `92.6`       |
-| EfficientNet B1   | `7.8`         | `25`    | `25.8`       | `94.9`       |
-| Resnet-34         | `21.8`        | `34`    | `153.9`      | `91.4`       |
+| MobileNet V3 Large| `5.5`         | `18`    | `8.7`        | `92.6`        |
+| EfficientNet B1   | `7.8`         | `25`    | `25.8`       | `94.9`        |
+| Resnet-34         | `21.8`        | `34`    | `153.9`      | `91.4`        |
 
 </ol>
 
@@ -88,12 +88,6 @@ The backbone architectures were obtained directly from the torchvision library a
 ![f1&loss_plots](/figures/f1&loss_9_plots.png)
 
 The above figure represents `Train & Val, F1 & Loss plots for the 9 models`. Initial training runs of the multilabel data produced a zero F1 score due to its highly imbalanced nature. To mitigate this, class wise weights were calculated and used with the loss function. This improved the F1 score considerably. Finally, the best models from each run by validation loss were used to get the test set metrics that are displayed in the tabel below.
-
-|      Model        |     `Resnet-34`     | `MobileNet` | `EfficientNet` |
-|     Dataset       | F1   Time   Epoch   |`80s` | `50`      |
-|-------------------|----------|------|-----------|
-| EfficientNet B3   |`0.189`   |`153s`| `5`       |
-| Resnet-50         |`0.179`   |`50s` | `10`      |
 
 <table>
         <tr>
@@ -116,93 +110,39 @@ The above figure represents `Train & Val, F1 & Loss plots for the 9 models`. Ini
         </tr>
        <tr>
          <th> Pneumonia </th>
-         <td> 
-            <pre> 0.784 </pre> 
-        </td>
-         <td>
-            <pre> 82 </pre>
-        </td>
-         <td>
-            <pre> <b> 22 </b> </pre>
-        </td>
-        <td>
-            <pre> <b> 0.804 </b> </pre> 
-        </td>
-         <td>
-            <pre> <b> 75 </b> </pre>
-        </td>
-         <td>
-            <pre> 42 </pre> 
-        </td>
-        <td>
-            <pre> 0.768 </pre>
-        </td>
-         <td>
-            <pre> 110 </pre>
-        </td>
-         <td>
-            <pre> 44 </pre>
-         </td>
+         <td> 0.784 </td>
+         <td> 82 </td>
+         <td> <b> 22 </b> </td>
+         <td> <b> 0.804 </b> </td>
+         <td> <b> 75 </b> </td>
+         <td> 42 </td>
+         <td> 0.768 </td>
+         <td> 110 </td>
+         <td> 44 </td>
       </tr>
       <tr>
          <th> COVID </th>
-         <td> 
-            <pre> 0.959 </pre> 
-        </td>
-         <td>
-            <pre> 50 </pre>
-        </td>
-         <td>
-            <pre> <b> 21 </b> </pre>
-        </td>
-        <td>
-            <pre> <b> 0.967 </b> </pre> 
-        </td>
-         <td>
-            <pre> <b> 37 </b> </pre>
-        </td>
-         <td>
-            <pre> 44 </pre> 
-        </td>
-        <td>
-            <pre> <b> 0.979 </b> </pre>
-        </td>
-         <td>
-            <pre> 56 </pre>
-        </td>
-         <td>
-            <pre> 46 </pre>
-         </td>
+         <td> 0.959 </td>
+         <td> 50 </td>
+         <td> <b> 21 </b> </td>
+         <td> <b> 0.967 </b> </td>
+         <td> <b> 37 </b> </td>
+         <td> 44 </td>
+         <td> <b> 0.979 </b> </td>
+         <td> 56 </td>
+         <td> 46 </td>
       </tr>
       <tr>
          <th> X-Ray 8 </th>
-         <td> 
-            <pre> 0.411 </pre> 
-        </td>
-         <td>
-            <pre> 11,502 </pre>
-        </td>
-         <td>
-            <pre> <b> 19 </b> </pre>
-        </td>
-        <td>
-            <pre> <b> 0.406 </b> </pre> 
-        </td>
-         <td>
-            <pre> <b> 7,275 </b> </pre>
-        </td>
-         <td>
-            <pre> 42 </pre> 
-        </td>
-        <td>
-            <pre> <b> 0.445 </b> </pre>
-        </td>
-         <td>
-            <pre> 13,820 </pre>
-        </td>
-         <td>
-            <pre> 31 </pre>
-         </td>
+         <td> 0.411 </td>
+         <td> 11,502 </td>
+         <td> <b> 19 </b> </td>
+         <td> <b> 0.406 </b> </td>
+         <td> <b> 7,275 </b> </td>
+         <td> 42 </td>
+         <td> <b> 0.445 </b> </td>
+         <td> 13,820 </td>
+         <td> 31 </td>
       </tr>
     </table>
 
