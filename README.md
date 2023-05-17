@@ -80,8 +80,7 @@ Different backbone architectures were chosen to ensure that different types of C
 ## Results
 
 First undersampling was performed on the datasets. Then, the scans were preprocessed
-using histogram equalization and Gaussian blur before resizing them and storing them in separate directories to make it easier for PyTorch dataloaders. Two datasets in this study presented the multiclass classification problem while the third, chest X-ray 8 dataset presented the multiclass, multilabel classification problem. Thus, the training methodology was separated for these two problems. For the multilabel problem,
-a softmax layer had to be added before the loss function to get 0 or 1 prediction for all the classes of the data. For this, the BCEWITHLOGITSLOSS function of PyTorch was used as it combines the Sigmoid layer and the BCELoss function in one single class. This makes theses operations more numerically stable than their separate counterparts.
+using histogram equalization and Gaussian blur before resizing them and storing them in separate directories to make it easier for PyTorch dataloaders. Two datasets in this study presented the multiclass classification problem while the third, chest X-ray 8 dataset presented the multiclass, multilabel classification problem. Thus, the training methodology was separated for these two problems. For the multilabel problem, a softmax layer had to be added before the loss function to get 0 or 1 prediction for all the classes of the data. For this, the BCEWITHLOGITSLOSS function of PyTorch was used as it combines the Sigmoid layer and the BCELoss function in one single class. This makes theses operations more numerically stable than their separate counterparts.
 
 The backbone architectures were obtained directly from the torchvision library and the final classification layer was modified for the selected datasets. For the models which had to be trained from scratch, the weights were randomly initialized and the entire model was trained for a total of 100 epochs each. For the transfer learning models, the weights were initialized with the IMAGENET1K_V2 weights but the entire model was fine-tuned. The rationale behind performing deep-tuning was that the Imagenet data is very different from chest X-ray scans thus the model would need to learn features from Xray scans.
 
@@ -150,6 +149,69 @@ The above figure represents `Train & Val, F1 & Loss plots for the 9 models`. Ini
 
 - It is clear that going from a smaller architecture to a bigger architecture, makes the model start to overfit earlier. The MobileNet model was the most unstable among the three and also took more epochs to reach the minima. The **EfficientNet** algorithm performs best for the COVID and Chest X-ray 8 dataset and all three architectures performed similar for the pneumonia dataset. This shows that the compound scaling of EfficientNet gives good results for chest X-ray data. 
 - The X-ray 8 dataset performed the worst among the three datasets which could be due to the high number of classes, class imbalance and the multilabel nature of the problem. Surprisingly, the pneumonia dataset performed worse than the COVID + pneumonia dataset which indicates that COVID cases are easier to distinguish from pneumonia cases.
+- It can be seen that the MobileNet architecture was the fastest to train per epoch. It consistantly took less time per epoch but, if number of epochs required to converge is considered, it does not train the fastest all the time. It is also evident that ResNet converged the fastest at half the number of epochs compared with other models.
+- EfficientNet models perform the best in terms of the overall F1 score on the test set with the exception of the Pneumonia dataset where surprisingly MobileNet performed the best.
+
+## Transfer Learning
+
+As **EfficientNet** gave the best for COVID and chest X-ray 8 dataset, it was chosen for transfer learning. The model was trained from scratch with ImageNet weights and was applied for classification on the COVID, Pneumonia and Chest X-ray 8 datasets. 
+
+![f1&loss_plots](/figures/f1&loss_transfer_plots.png)
+
+The above figure represents `Train & Val, F1 & Loss plots for the 3 transfer learning models`. It can be seen that the transfer learning model had a much better start than the randomly initialized model. It also converged much quicker than the model trained from scratch. For the Pneumonia dataset, the model trained from scratch was highly unstable at the start and could not catch up to the transfer learning model even after 100 epochs in terms of the F1 score. The results are shown in the table below.
+
+<table>
+        <tr>
+            <th>Model</th>
+            <th colspan="3">EfficientNet-Transfer Learning</th>
+        </tr>
+        <tr>
+            <th>Dataset</th>
+            <th>F1 Score</th>
+            <th>Time</th>
+            <th>Epoch</th>
+        </tr>
+        <tr>
+            <th> Pneumonia </th>
+            <td> 0.782 </td>
+            <td> 114 </td>
+            <td> 70 </td>
+        </tr>
+        <tr>
+            <th> COVID </th>
+            <td> 0.978 </td>
+            <td> 56 </td>
+            <td> 43 </td>
+        </tr>
+        <tr>
+            <th> X-Ray 8 </th>
+            <td> <b> 0.457 </b> </td>
+            <td> 13,813 </td>
+            <td> 29 </td>
+        </tr>
+</table>
+
+## Observations
+
+- The transfer learning models converged quicker than the other models with the exception of the Pneumonia dataset. Another observation is that the EfficientNet model takes the longest to train per epoch even though the number of trainable parameters is nowhere close to ResNet.
+
+- Also, MobileNet isn’t as fast to train as expected when compared to ResNet even though it has 4 times the learnable paramenters. This could be due to two reasons, depthwise convolutions are not optimized in the version of PyTorch and
+CUDA used and training is getting CPU bound due to the data augmentation before each training run which would take the same amount of time for all the models.
+
+### T-SNE and Confusion Matrices
+
+The figures below represent `T-SNE and Confusion matrices for the test set of the Pneumonia dataset`.
+
+![t-sne-resnet-pneumonia](/figures/t-SNE-Resnet-pneumonia.png)
+
+![t-sne-mobilenet-pneumonia](/figures/t-SNE-MobileNet-pneumonia.png)
+
+![t-sne-efficientnet-pneumonia](/figures/t-SNE-EfficientNet-pneumonia.png)
+
+![t-sne-TL-pneumonia](/figures/t-SNE-TL-pneumonia.png)
+
+- These t-SNE plots and confusion matrices show that the models are able to differentiate well between the normal and pneumonia classes but struggle with the viral pneumonia vs bacterial pneumonia classification. MobileNet performs better but the EfficientNet transfer learning model creates better separation of classes. 
+- Thus, even though MobileNet performs better in this case, the EfficientNet transfer learning model would generalize well on new unseen data. This is correlated in the confusion matrix where the transfer learning and MobileNet models perform the best.
 
 ## Training and validating the models
 To train and validate the models
