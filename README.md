@@ -34,6 +34,9 @@ Install torch in conda environment:
 ```
 pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
 ```
+
+---
+
 ## Dataset
 We have choosen 3 types of chest X-Ray datasets (Tab. 1) that have varying disease types to ensure that our models are robust. The
 main concern while selecting the datasets was the number of images per class as most datasets were highly skewed. We rejected datasets where the images were compressed and noisy as this can lead to mis-diagnosis. This will help reduce the time spent in the pre-processing stage. The dataset links are as follows:
@@ -77,10 +80,11 @@ Different backbone architectures were chosen to ensure that different types of C
 
 </ol>
 
-## Results
+---
 
-First undersampling was performed on the datasets. Then, the scans were preprocessed
-using histogram equalization and Gaussian blur before resizing them and storing them in separate directories to make it easier for PyTorch dataloaders. Two datasets in this study presented the multiclass classification problem while the third, chest X-ray 8 dataset presented the multiclass, multilabel classification problem. Thus, the training methodology was separated for these two problems. For the multilabel problem, a softmax layer had to be added before the loss function to get 0 or 1 prediction for all the classes of the data. For this, the BCEWITHLOGITSLOSS function of PyTorch was used as it combines the Sigmoid layer and the BCELoss function in one single class. This makes theses operations more numerically stable than their separate counterparts.
+## Experimental Setup
+
+First undersampling was performed on the datasets. Then, the scans were preprocessed using histogram equalization and Gaussian blur before resizing them and storing them in separate directories to make it easier for PyTorch dataloaders. Two datasets in this study presented the multiclass classification problem while the third, chest X-ray 8 dataset presented the multiclass, multilabel classification problem. Thus, the training methodology was separated for these two problems. For the multilabel problem, a softmax layer had to be added before the loss function to get 0 or 1 prediction for all the classes of the data. For this, the BCEWITHLOGITSLOSS function of PyTorch was used as it combines the Sigmoid layer and the BCELoss function in one single class. This makes theses operations more numerically stable than their separate counterparts.
 
 The backbone architectures were obtained directly from the torchvision library and the final classification layer was modified for the selected datasets. For the models which had to be trained from scratch, the weights were randomly initialized and the entire model was trained for a total of 100 epochs each. For the transfer learning models, the weights were initialized with the IMAGENET1K_V2 weights but the entire model was fine-tuned. The rationale behind performing deep-tuning was that the Imagenet data is very different from chest X-ray scans thus the model would need to learn features from Xray scans.
 
@@ -145,12 +149,14 @@ The above figure represents `Train & Val, F1 & Loss plots for the 9 models`. Ini
       </tr>
     </table>
 
-## Results
+## Results Analysis
 
 - It is clear that going from a smaller architecture to a bigger architecture, makes the model start to overfit earlier. The MobileNet model was the most unstable among the three and also took more epochs to reach the minima. The **EfficientNet** algorithm performs best for the COVID and Chest X-ray 8 dataset and all three architectures performed similar for the pneumonia dataset. This shows that the compound scaling of EfficientNet gives good results for chest X-ray data. 
 - The X-ray 8 dataset performed the worst among the three datasets which could be due to the high number of classes, class imbalance and the multilabel nature of the problem. Surprisingly, the pneumonia dataset performed worse than the COVID + pneumonia dataset which indicates that COVID cases are easier to distinguish from pneumonia cases.
 - It can be seen that the MobileNet architecture was the fastest to train per epoch. It consistantly took less time per epoch but, if number of epochs required to converge is considered, it does not train the fastest all the time. It is also evident that ResNet converged the fastest at half the number of epochs compared with other models.
 - EfficientNet models perform the best in terms of the overall F1 score on the test set with the exception of the Pneumonia dataset where surprisingly MobileNet performed the best.
+
+---
 
 ## Transfer Learning
 
@@ -191,12 +197,16 @@ The above figure represents `Train & Val, F1 & Loss plots for the 3 transfer lea
         </tr>
 </table>
 
+---
+
 ## Observations
 
 - The transfer learning models converged quicker than the other models with the exception of the Pneumonia dataset. Another observation is that the EfficientNet model takes the longest to train per epoch even though the number of trainable parameters is nowhere close to ResNet.
 
 - Also, MobileNet isn’t as fast to train as expected when compared to ResNet even though it has 4 times the learnable paramenters. This could be due to two reasons, depthwise convolutions are not optimized in the version of PyTorch and
 CUDA used and training is getting CPU bound due to the data augmentation before each training run which would take the same amount of time for all the models.
+
+--- 
 
 ### T-SNE and Confusion Matrices
 
@@ -220,19 +230,36 @@ Similarly, for the figure represents `T-SNE and Confusion matrices for the test 
 - The above plots and confusion matrices also show that all models do a good job of separating classes to create distinct clusters but, the transfer learning model creates better clusters with separate smaller clusters. 
 - These smaller clusters could indicate other factors of the disease, for example the severity and amount of lung damage caused by the disease. This performance of the transfer learning model can be confirmed by looking at the confusion matrix as well.
 
+---
+
 ## Grad-CAM Visualizations
 
 ![grad-cam-pneumonia](/figures/grad-cam-pneumonia.png)
 
-The figure above shows the gradCAM visualization of the last layer of the convolutional network. Here, it can be seen that ResNet is learning completely different features as compared to the other models, which could be a reason of its poor performance. In case of bacterial pneumonia, the network identifies affected area on the right side of the scan. On the other hand, incase of viral pneumonia, models look at both sides of the lungs.
+- The figure above shows the gradCAM visualization of the last layer of the convolutional network. Here, it can be seen that ResNet is learning completely different features as compared to the other models, which could be a reason of its poor performance. 
+- In case of bacterial pneumonia, the network identifies affected area on the right side of the scan. On the other hand, incase of viral pneumonia, models look at both sides of the lungs.
 
----
 
 Now, comparing the gradCAM visulization of the COVID dataset.
 
 ![grad-cam-COVID](/figures/grad-cam-COVID.png)
 
 The figure above shows shows that MobileNet activates the entire image incase of COVID, this could be the reason for its low performance. In case of pneumonia, the Efficient- Net models identifies affected areas on the bottom of the lungs. On the other hand, in case of COVID, the models look at a bigger region of the lungs.
+
+---
+
+## Ablation Study
+
+For the ablative study, the COVID dataset was chosen along with the EfficientNet B1 architecture trained from scratch. The learning rates chosen for the study are 0.001, 0.005, 0.01, 0.05, and 0.1.
+
+![ablation-study](/figures/ablation-study.png)
+
+- From the training and validation F1 score and loss plots given in the figure above. it is seen that a very high learning rate of 0.1 is highly unstable and prevents the model from reaching close to global minima. Similarly, learning rate of 0.05 also prevented the model from converging on the validation set even after 100 epochs. 
+- The other three learning rates all converged on the validation set but, the learning rate of 0.001 was the most stable and reached the highest F1 score earliest. On the other hand, learning rate of 0.01 performed marginally better on the loss plot.
+
+![ablation-study-graph](/figures/ablation-study-graph.png)
+
+- From the figure above it can be seen that the best performing learning rate is 0.001 on the F1 score of the test set with 0.005, 0.01 close seconds and 0.05, 0.1 performing the worst. This matches the results of the validation set. Thus, a learning rate of 0.001 performs the best on the COVID dataset with transfer learning.
 
 ## Training and validating the models
 To train and validate the models
