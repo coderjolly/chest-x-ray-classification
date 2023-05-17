@@ -213,6 +213,27 @@ The figures below represent `T-SNE and Confusion matrices for the test set of th
 - These t-SNE plots and confusion matrices show that the models are able to differentiate well between the normal and pneumonia classes but struggle with the viral pneumonia vs bacterial pneumonia classification. MobileNet performs better but the EfficientNet transfer learning model creates better separation of classes. 
 - Thus, even though MobileNet performs better in this case, the EfficientNet transfer learning model would generalize well on new unseen data. This is correlated in the confusion matrix where the transfer learning and MobileNet models perform the best.
 
+Similarly, for the figure represents `T-SNE and Confusion matrices for the test set of the COVID dataset`.
+
+![t-sne-all-covid](/figures/t-sne-all-covid.png)
+
+- The above plots and confusion matrices also show that all models do a good job of separating classes to create distinct clusters but, the transfer learning model creates better clusters with separate smaller clusters. 
+- These smaller clusters could indicate other factors of the disease, for example the severity and amount of lung damage caused by the disease. This performance of the transfer learning model can be confirmed by looking at the confusion matrix as well.
+
+## Grad-CAM Visualizations
+
+![grad-cam-pneumonia](/figures/grad-cam-pneumonia.png)
+
+The figure above shows the gradCAM visualization of the last layer of the convolutional network. Here, it can be seen that ResNet is learning completely different features as compared to the other models, which could be a reason of its poor performance. In case of bacterial pneumonia, the network identifies affected area on the right side of the scan. On the other hand, incase of viral pneumonia, models look at both sides of the lungs.
+
+---
+
+Now, comparing the gradCAM visulization of the COVID dataset.
+
+![grad-cam-COVID](/figures/grad-cam-COVID.png)
+
+The figure above shows shows that MobileNet activates the entire image incase of COVID, this could be the reason for its low performance. In case of pneumonia, the Efficient- Net models identifies affected areas on the bottom of the lungs. On the other hand, in case of COVID, the models look at a bigger region of the lungs.
+
 ## Training and validating the models
 To train and validate the models
 1. Create the conda environment
@@ -224,7 +245,4 @@ To train and validate the models
 1. Create the conda environment
 2. Copy the sample data to the data folder
 3. Run the relevant script from the notebooks folder. For example to train the transfer learning EfficientNet B1 model for the Chest X-ray 8 dataset, run the notebooks/xray8/Multilabel_Training_efficient_net_b1_100_epoch_32_batch_transfer.ipynb notebook.
-
-## Source code package in PyTorch
-Not required. ALl dependencies are present in the environment file.
 
