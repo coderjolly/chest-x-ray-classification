@@ -212,13 +212,7 @@ CUDA used and training is getting CPU bound due to the data augmentation before 
 
 The figures below represent `T-SNE and Confusion matrices for the test set of the Pneumonia dataset`.
 
-![t-sne-resnet-pneumonia](/figures/t-SNE-Resnet-pneumonia.png)
-
-![t-sne-mobilenet-pneumonia](/figures/t-SNE-MobileNet-pneumonia.png)
-
-![t-sne-efficientnet-pneumonia](/figures/t-SNE-EfficientNet-pneumonia.png)
-
-![t-sne-TL-pneumonia](/figures/t-SNE-TL-pneumonia.png)
+![t-sne-all-pneumonia](/figures/t-sne-all-pneumonia.png)
 
 - These t-SNE plots and confusion matrices show that the models are able to differentiate well between the normal and pneumonia classes but struggle with the viral pneumonia vs bacterial pneumonia classification. MobileNet performs better but the EfficientNet transfer learning model creates better separation of classes. 
 - Thus, even though MobileNet performs better in this case, the EfficientNet transfer learning model would generalize well on new unseen data. This is correlated in the confusion matrix where the transfer learning and MobileNet models perform the best.
